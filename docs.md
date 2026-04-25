@@ -37,3 +37,11 @@ psql (18.3)
 # describe table 'books'
 \d books
 ```
+
+```bash
+alembic init -t async migrations
+
+alembic revision --autogenerate -m "init"
+
+alembic upgrade head
+```

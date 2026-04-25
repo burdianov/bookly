@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime
+from datetime import datetime
 
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import func, text
@@ -8,22 +8,19 @@ import sqlalchemy.dialects.postgresql as pg
 from src.db.base import Base
 
 
-class Book(Base):
-    __tablename__ = "books"
+class User(Base):
+    __tablename__ = "users"
 
     uid: Mapped[uuid.UUID] = mapped_column(
         pg.UUID(as_uuid=True),
         primary_key=True,
         server_default=text("gen_random_uuid()"),
     )
-
-    title: Mapped[str] = mapped_column(pg.VARCHAR(255), nullable=False)
-    author: Mapped[str] = mapped_column(pg.VARCHAR(255), nullable=False)
-    publisher: Mapped[str] = mapped_column(pg.VARCHAR(255), nullable=False)
-
-    published_date: Mapped[date] = mapped_column(pg.DATE, nullable=False)
-    page_count: Mapped[int] = mapped_column(pg.INTEGER, nullable=False)
-    language: Mapped[str] = mapped_column(pg.VARCHAR(20), nullable=False)
+    username: Mapped[str] = mapped_column(pg.VARCHAR(255), nullable=False, unique=True)
+    first_name: Mapped[str] = mapped_column(pg.VARCHAR(255), nullable=False)
+    last_name: Mapped[str] = mapped_column(pg.VARCHAR(255), nullable=False)
+    email: Mapped[str] = mapped_column(pg.VARCHAR(255), nullable=False, unique=True)
+    is_verified: Mapped[bool] = mapped_column(pg.BOOLEAN, nullable=False, default=False)
 
     created_at: Mapped[datetime] = mapped_column(
         pg.TIMESTAMP(timezone=True),
