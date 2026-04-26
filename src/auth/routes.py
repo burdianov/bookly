@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
 from src.auth.schemas import UserCreate, UserLogin, UserRead
 from src.db.main import get_session
 from src.auth.service import UserService
 from src.auth.utils import create_access_token, verify_password
-from src.auth.dependencies import RefreshTokenBearer
-
+from src.auth.dependencies import AccessTokenBearer, RefreshTokenBearer
+from src.db.redis import add_jti_to_blocklist
 
 auth_router = APIRouter()
 user_service = UserService()
@@ -102,4 +102,24 @@ async def get_new_access_token(
         content={
             "access_token": new_access_token,
         }
+    )
+
+
+@auth_router.get("/logout")
+async def revoke_token(token_details: dict = Depends(AccessTokenBearer())):
+    jti = token_details.get("jti")
+
+    if not isinstance(jti, str):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid token payload: missing jti",
+        )
+
+    await add_jti_to_blocklist(jti)
+
+    return JSONResponse(
+        content={
+            "message": "Logout successful",
+        },
+        status_code=status.HTTP_200_OK,
     )

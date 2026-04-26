@@ -58,3 +58,6 @@ import secrets
 secrets.token_hex(16)
 # '197bdae65325b12df6200ac4fdd9e745'
 ```
+
+##### Run redis
+`docker run --name bookly-redis -p 6379:6379 -d redis`
