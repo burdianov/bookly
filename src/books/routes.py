@@ -6,28 +6,41 @@ from uuid import UUID
 from src.books.schemas import Book, BookCreate, BookUpdate
 from src.db.main import get_session
 from src.books.service import BookService
+from src.auth.dependencies import AccessTokenBearer
 
 
 books_router = APIRouter()
 book_service = BookService()
+access_token_bearer = AccessTokenBearer()
 
 
 @books_router.get("/", response_model=List[Book])
-async def get_all_books(session: AsyncSession = Depends(get_session)):
+async def get_all_books(
+    session: AsyncSession = Depends(get_session),
+    user_details=Depends(access_token_bearer),
+):
+    print("----- ##### -----\n", user_details, "\n----- ##### -----")
     books = await book_service.get_all_books(session)
     return books
 
 
 @books_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Book)
 async def create_book(
-    book: BookCreate, session: AsyncSession = Depends(get_session)
+    book: BookCreate,
+    session: AsyncSession = Depends(get_session),
+    user_details=Depends(access_token_bearer),
 ) -> Book:
+
     new_book = await book_service.create_book(session, book)
     return new_book
 
 
 @books_router.get("/{book_id}", response_model=Book)
-async def get_book(book_id: UUID, session: AsyncSession = Depends(get_session)) -> Book:
+async def get_book(
+    book_id: UUID,
+    session: AsyncSession = Depends(get_session),
+    user_details=Depends(access_token_bearer),
+) -> Book:
     book = await book_service.get_book_by_id(session, book_id)
 
     if not book:
@@ -41,6 +54,7 @@ async def update_book(
     book_id: UUID,
     book_update_data: BookUpdate,
     session: AsyncSession = Depends(get_session),
+    user_details=Depends(access_token_bearer),
 ) -> Book:
     book = await book_service.update_book(session, book_id, book_update_data)
     if not book:
@@ -52,6 +66,7 @@ async def update_book(
 async def delete_book(
     book_id: UUID,
     session: AsyncSession = Depends(get_session),
+    user_details=Depends(access_token_bearer),
 ):
     book = await book_service.delete_book(session, book_id)
 

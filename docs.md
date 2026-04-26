@@ -49,3 +49,12 @@ alembic revision --autogenerate -m "add password_hash"
 
 alembic upgrade head
 ```
+
+##### Generate secret key in command line
+```bash
+python
+
+import secrets
+secrets.token_hex(16)
+# '197bdae65325b12df6200ac4fdd9e745'
+```
