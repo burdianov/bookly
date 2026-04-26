@@ -7,7 +7,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from src.auth.utils import decode_access_token
 
 
-class AccessTokenBearer(HTTPBearer):
+class TokenBearer(HTTPBearer):
     async def __call__(self, request: Request) -> dict[str, Any]:  # type: ignore[override]
         creds: HTTPAuthorizationCredentials | None = await super().__call__(request)
 
@@ -28,13 +28,30 @@ class AccessTokenBearer(HTTPBearer):
         if not token_data:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Invalid or expired access token",
+                detail="Invalid or expired token",
             )
 
+        self.verify_token_data(token_data)
+
+        return token_data
+
+    def verify_token_data(self, token_data: dict[str, Any]) -> None:
+        raise NotImplementedError("Override this method in child classes")
+
+
+class AccessTokenBearer(TokenBearer):
+    def verify_token_data(self, token_data: dict[str, Any]) -> None:
         if token_data.get("refresh") is True:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Refresh token cannot be used as access token",
+                detail="Provide an access token",
             )
 
-        return token_data
+
+class RefreshTokenBearer(TokenBearer):
+    def verify_token_data(self, token_data: dict[str, Any]) -> None:
+        if token_data.get("refresh") is not True:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Provide a refresh token",
+            )

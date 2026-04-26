@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 from src.auth.schemas import UserCreate, UserLogin, UserRead
 from src.db.main import get_session
 from src.auth.service import UserService
 from src.auth.utils import create_access_token, verify_password
+from src.auth.dependencies import RefreshTokenBearer
 
 
 auth_router = APIRouter()
@@ -79,3 +80,26 @@ async def login(login_data: UserLogin, session: AsyncSession = Depends(get_sessi
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid email or password",
         )
+
+
+@auth_router.get("/refresh_token")
+async def get_new_access_token(
+    token_details: dict = Depends(RefreshTokenBearer()),
+):
+    user_data = token_details.get("user")
+
+    if not user_data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid refresh token",
+        )
+
+    new_access_token = create_access_token(
+        user_data=user_data,
+    )
+
+    return JSONResponse(
+        content={
+            "access_token": new_access_token,
+        }
+    )
