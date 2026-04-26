@@ -20,7 +20,8 @@ class User(Base):
     first_name: Mapped[str] = mapped_column(pg.VARCHAR(255), nullable=False)
     last_name: Mapped[str] = mapped_column(pg.VARCHAR(255), nullable=False)
     email: Mapped[str] = mapped_column(pg.VARCHAR(255), nullable=False, unique=True)
-    is_verified: Mapped[bool] = mapped_column(pg.BOOLEAN, nullable=False, default=False)
+    is_verified: Mapped[bool] = mapped_column(pg.BOOLEAN, nullable=True, default=False)
+    password_hash: Mapped[str] = mapped_column(pg.VARCHAR(255), nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(
         pg.TIMESTAMP(timezone=True),

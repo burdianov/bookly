@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from src.books.routes import books_router
+from src.auth.routes import auth_router
 
 
 @asynccontextmanager
@@ -25,8 +26,8 @@ app = FastAPI(
 )
 
 origins = [
-    "http://localhost:5173",  # Vite default
-    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 
 app.add_middleware(
@@ -38,3 +39,4 @@ app.add_middleware(
 )
 
 app.include_router(books_router, prefix=f"/api/{version}/books", tags=["books"])
+app.include_router(auth_router, prefix=f"/api/{version}/auth", tags=["auth"])

@@ -44,4 +44,8 @@ alembic init -t async migrations
 alembic revision --autogenerate -m "init"
 
 alembic upgrade head
+
+alembic revision --autogenerate -m "add password_hash"
+
+alembic upgrade head
 ```

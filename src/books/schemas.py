@@ -14,6 +14,9 @@ class Book(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+    class Config:
+        from_attributes = True
+
 
 class BookCreate(BaseModel):
     title: str
